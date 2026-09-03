@@ -48,7 +48,8 @@ int ConvolutionDepthWise::load_param(const ParamDict& pd)
     if ((activation_params.dims != 0 || activation_params.w != 0 || activation_params.data) && (activation_params.dims != 1 || activation_params.w < 0 || activation_params.elempack != 1 || activation_params.elemsize != 4u || (activation_params.w > 0 && !activation_params.data)))
         return -1;
 
-    if (int8_scale_term != 0 && int8_scale_term != 1 && int8_scale_term != 2 && int8_scale_term != 101 && int8_scale_term != 102)
+    // ncnn2int8 may fuse requantize more than once, producing 201/202
+    if (int8_scale_term != 0 && int8_scale_term % 100 != 1 && int8_scale_term % 100 != 2)
         return -1;
 
     if (group <= 0)
@@ -122,7 +123,9 @@ int ConvolutionDepthWise::load_model(const ModelBin& mb)
     }
 
 #if NCNN_INT8
-    if (int8_scale_term == 1 || int8_scale_term == 101)
+    // NOTE ncnn2int8 may fuse requantize multiple times for split-fanout
+    // consumers, producing 201/202 in addition to 101/102. Handle by residue.
+    if (int8_scale_term % 100 == 1)
     {
         weight_data_int8_scales = mb.load(group, 1);
         bottom_blob_int8_scales = mb.load(1, 1);
@@ -131,7 +134,7 @@ int ConvolutionDepthWise::load_model(const ModelBin& mb)
         bottom_blob_int8_scales = Mat(group);
         bottom_blob_int8_scales.fill(bottom_blob_int8_scale);
     }
-    else if (int8_scale_term == 2 || int8_scale_term == 102)
+    else if (int8_scale_term % 100 == 2)
     {
         weight_data_int8_scales = mb.load(1, 1);
         bottom_blob_int8_scales = mb.load(1, 1);
