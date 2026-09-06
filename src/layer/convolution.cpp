@@ -47,7 +47,7 @@ int Convolution::load_param(const ParamDict& pd)
     if ((activation_params.dims != 0 || activation_params.w != 0 || activation_params.data) && (activation_params.dims != 1 || activation_params.w < 0 || activation_params.elempack != 1 || activation_params.elemsize != 4u || (activation_params.w > 0 && !activation_params.data)))
         return -1;
 
-    if (activation_type < 0 || activation_type > 6)
+    if (activation_type < 0 || activation_type > 7)
         return -1;
 
     if ((activation_type == 2 && activation_params.w < 1) || ((activation_type == 3 || activation_type == 6) && activation_params.w < 2))

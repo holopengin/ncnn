@@ -44,7 +44,7 @@ int DeconvolutionDepthWise1D::load_param(const ParamDict& pd)
     if (group <= 0)
         return -1;
 
-    if (activation_type < 0 || activation_type > 6)
+    if (activation_type < 0 || activation_type > 7)
         return -1;
 
     if ((activation_type == 2 && activation_params.w < 1) || ((activation_type == 3 || activation_type == 6) && activation_params.w < 2))
